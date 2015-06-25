@@ -10,7 +10,7 @@ class User
 
   # Verify that the user can withdraw the requested amount
   def can_withdraw?(amount)
-    @balance >= amount && amount > 0
+    amount.class == Fixnum && @balance >= amount && amount > 0
   end
 
   # Update the balance

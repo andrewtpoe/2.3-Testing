@@ -4,10 +4,10 @@ class Machine
 
   # Verify that the ATM contains sufficient money for the withdrawal
   def can_withdraw?(amount)
-    @balance >= amount && amount > 0
+    amount.class == Fixnum && @balance >= amount && amount > 0
   end
 
-  # Update the balance 
+  # Update the balance
   def deduct(amount)
     @balance -= amount
   end

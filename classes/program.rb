@@ -4,7 +4,6 @@
 
 # Required modules
 require 'csv'
-
 # Required files
 require_relative 'user'
 require_relative 'machine'
@@ -16,6 +15,8 @@ require_relative 'machine'
 class Program
   MAIN_MENU = ['1: Login to your account', '2: View ATM balance', '3: Exit program'].freeze
   ACC_MENU = ['1: Check balance', '2: Make withdrawal', '3: Log out of your account'].freeze
+
+  attr_accessor :user, :atm
 
  def initialize(machine)
     @atm = machine
@@ -31,12 +32,14 @@ class Program
 
   # This is the main loop that is called to run the program.
   def run
+    status = {}
     # Display a greeting message with the main menu.
     puts "Welcome to ATM #8675309"
     puts "What would you like to do?"
     puts ""
 
     # Display the main menu and get the users input
+    # Main menu should accept options 1 - 3
     main_menu_sel = get_menu_selection(MAIN_MENU)
 
     # Depending on the user's input, perform the correct function
@@ -59,7 +62,6 @@ class Program
         # Run the account menu
         show_acc_menu()
       end
-
     # Main Menu option 2 is to view the ATM's available balance.
     when 2
       # This code should view the atm's current balance
@@ -76,7 +78,10 @@ class Program
     # This else should be theoretically impossible.
     else
       display_error()
+      @exit_prog = true
+      status[:error] = "Fatal Error"
     end
+    status
   end
 
   # We need to access @exit_prog's value outside of the class. Let's make a getter
@@ -91,12 +96,10 @@ class Program
     while var == ""
       puts "#{prompt}"
       print ">> "
-      var = gets.chomp
+      var = chomp
       puts ""
     end
-
     var
-
   end
 
   # Gathers the user's login and pin information
@@ -104,9 +107,7 @@ class Program
     name = get_input("Please enter your name")
     pin = get_input("Please enter your pin")
     login = { name: name, pin: pin}
-
    login
-
   end
 
   # This method displays a menu and verifies that the
@@ -121,9 +122,7 @@ class Program
         puts ""
       end
     end
-
     men_sel
-
   end
 
   # This method takes login info and searches the "database" for a valid
@@ -179,6 +178,8 @@ class Program
 
   # This method handles the withdrawing funds logic.
   def withdraw_funds
+    # The response hash is used to simplify the testing on this method
+    r = {}
     # Ask the user how much they would like to withdraw from their account
     amount = get_input("How much would you like to withdraw?").to_i
     # Let's make sure the account and the ATM can handle this transaction
@@ -197,15 +198,20 @@ class Program
     elsif amount <= 0
       puts "You can not withdraw a negative amount."
       puts ""
+      r[:error] = "Can not withdraw a negative amount."
     elsif !user_can_withdraw
       puts "You have asked to withdraw more than you have in your account"
       puts ""
+      r[:error] = "User does not have sufficient funds"
     elsif !atm_can_withdraw
       puts "ATM has insufficient balance to fulfill this request."
       puts ""
+      r[:error] = "ATM does not have sufficient funds"
     else
       display_error()
+      r[:error] = "Unkown error"
     end
+    r
   end
 
   # This method handles parsing the users.csv file that serves as our database table.
@@ -232,6 +238,13 @@ class Program
       end
     end
   end
+
+  # Extract gets.chomp for easier testing purposes.
+  def chomp
+    var = gets.chomp
+    return var
+  end
+
 
 # Closes the class
 end
