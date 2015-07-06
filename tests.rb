@@ -68,7 +68,7 @@ class TestMachine < MiniTest::Test
 
 end
 
-class TestProgram  < MiniTest::Test
+class TestProgram < MiniTest::Test
   def setup
     @atm = Machine.new
     @atm.balance = 100000
@@ -96,7 +96,7 @@ class TestProgram  < MiniTest::Test
   end
 
   # Test get_login_info method
-  def test_login_name
+  def test_login_name_and_pin_work
     login = {}
     @p.stub(:chomp, "Andrew") do
       login = @p.get_login_info
